@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\MES.Application\MES.Application.csproj" />
+    <ProjectReference Include="..\MES.Infrastructure\MES.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>56de1cb3-fab8-4800-8dd5-4bbd5258f193</UserSecretsId>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+@page
+@model MES.Web.Pages.Machines.IndexModel
+@{ ViewData["Title"] = "Maszyny"; }
+<h1>Maszyny</h1>
+<form method="get" class="mb-4">
+    <label asp-for="Search" class="form-label">Kod lub nazwa</label>
+    <input asp-for="Search" class="form-control mb-2" maxlength="100" />
+    <span asp-validation-for="Search" class="text-danger"></span>
+    <button class="btn btn-primary">Szukaj</button>
+</form>
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">@Model.ErrorMessage</div>
+}
+else if (Model.Machines.Count == 0)
+{
+    <p>Brak maszyn do wyświetlenia.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead><tr><th>ID</th><th>Kod</th><th>Nazwa</th></tr></thead>
+        <tbody>
+        @foreach (var machine in Model.Machines)
+        {
+            <tr><td>@machine.Id</td><td>@machine.Code</td><td>@machine.Name</td></tr>
+        }
+        </tbody>
+    </table>
+}
