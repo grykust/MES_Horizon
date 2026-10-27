@@ -1,0 +1,21 @@
+@page
+@model MES.Web.Pages.Workstations.IndexModel
+@{ ViewData["Title"] = "Stanowiska produkcyjne"; }
+<h1>Stanowiska produkcyjne</h1>
+<partial name="_PrototypeNotice" />
+<a asp-page="Create" class="btn btn-primary mb-3">Dodaj stanowisko</a>
+@if (Model.Catalog.Workstations.Count == 0)
+{
+    <p>Brak stanowisk. W słownikach dodaj rodzaj, a następnie utwórz stanowisko.</p>
+}
+else
+{
+    <div class="table-responsive"><table class="table table-striped">
+        <thead><tr><th>Kod</th><th>Nazwa</th><th>Rodzaj</th><th>Wartości</th><th></th></tr></thead>
+        <tbody>@foreach (var item in Model.Catalog.Workstations)
+        {
+            <tr><td>@item.Code</td><td>@item.Name</td><td>@item.TypeName</td>
+                <td>@item.Values.Count</td><td><a asp-page="Details" asp-route-id="@item.Id">Właściwości</a></td></tr>
+        }</tbody>
+    </table></div>
+}

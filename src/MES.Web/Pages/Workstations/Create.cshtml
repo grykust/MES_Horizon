@@ -1,0 +1,35 @@
+@page
+@model MES.Web.Pages.Workstations.CreateModel
+@{ ViewData["Title"] = "Dodaj stanowisko"; }
+<h1>Dodaj stanowisko</h1>
+<partial name="_PrototypeNotice" />
+@if (Model.Catalog.Types.Count == 0)
+{
+    <p>Najpierw <a asp-page="Setup">dodaj rodzaj stanowiska</a>.</p>
+}
+else if (!Model.Catalog.Types.Any(x => x.Id == Model.TypeId))
+{
+    <form method="get">
+        <label for="type" class="form-label">Rodzaj stanowiska</label>
+        <select id="type" name="TypeId" class="form-select mb-3" required>
+            <option value="">— wybierz —</option>
+            @foreach (var type in Model.Catalog.Types) { <option value="@type.Id">@type.Name</option> }
+        </select>
+        <button class="btn btn-primary">Dalej</button>
+    </form>
+}
+else
+{
+    <p>Rodzaj: <strong>@Model.Catalog.Types.Single(x => x.Id == Model.TypeId).Name</strong>
+        <a asp-page="Create">Zmień rodzaj (wyczyści formularz)</a></p>
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+        <input asp-for="TypeId" type="hidden" />
+        <div class="mb-3"><label asp-for="Code">Kod</label><input asp-for="Code" class="form-control" maxlength="50" required /></div>
+        <div class="mb-3"><label asp-for="Name">Nazwa</label><input asp-for="Name" class="form-control" maxlength="200" required /></div>
+        <div class="mb-3"><label asp-for="Description">Opis</label><textarea asp-for="Description" class="form-control" maxlength="2000"></textarea></div>
+        <h2 class="h4">Właściwości stanowiska</h2>
+        <partial name="_PropertyFields" model="@(new PropertyFields(Model.Catalog, Model.TypeId, Model.Values))" />
+        <button class="btn btn-primary">Utwórz stanowisko</button>
+    </form>
+}

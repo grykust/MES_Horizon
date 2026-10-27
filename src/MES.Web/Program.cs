@@ -3,6 +3,8 @@ using MES.Application.Machines;
 using MES.Infrastructure.Data;
 using MES.Infrastructure.Data.Repositories;
 using MES.Web.Middleware;
+using MES.Application.Workstations;
+using MES.Web.Prototype;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -20,10 +22,23 @@ builder.Services.AddSingleton(database);
 builder.Services.AddSingleton<SqlConnectionFactory>();
 builder.Services.AddScoped<IMachineRepository, MachineRepository>();
 builder.Services.AddScoped<IMachineService, MachineService>();
+builder.Services.AddSingleton<IWorkstationCatalogStore, InMemoryWorkstationCatalogStore>();
+builder.Services.AddScoped<ICurrentOperator, DemoOperator>();
+builder.Services.AddScoped<IWorkstationCatalogService, WorkstationCatalogService>();
 var app = builder.Build();
 app.UseExceptionHandler("/Error");
 if (!app.Environment.IsDevelopment()) app.UseHsts();
 app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/Workstations")
+        && !app.Configuration.GetValue<bool>("WorkstationPrototype:Enabled"))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+    await next(context);
+});
 app.UseRouting();
 app.UseAuthorization();
 app.MapStaticAssets();

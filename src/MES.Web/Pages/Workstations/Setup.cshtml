@@ -1,0 +1,70 @@
+@page
+@model MES.Web.Pages.Workstations.SetupModel
+@using MES.Domain.Properties
+@{ ViewData["Title"] = "Słowniki i właściwości"; }
+<h1>Słowniki i właściwości</h1>
+<partial name="_PrototypeNotice" />
+<p>1. Dodaj rodzaj. 2. Zdefiniuj cechy. 3. Przypisz je do rodzaju. 4. Utwórz stanowisko i uzupełnij wartości.</p>
+<p>Lokalizację dodaj jako właściwość typu <strong>Słownik</strong>, a centrum produkcyjne jako <strong>Słownik — wiele wyborów</strong>, aby stanowisko mogło należeć do kilku centrów.</p>
+@if (Model.Notice is not null) { <div class="alert alert-success" role="status">@Model.Notice</div> }
+<div asp-validation-summary="All" class="text-danger" role="alert"></div>
+<div class="row g-4">
+    <section class="col-md-6">
+        <h2 class="h4">Rodzaje stanowisk</h2>
+        <ul>@foreach (var item in Model.Catalog.Types) { <li>@item.Name</li> }</ul>
+        <form method="post" asp-page-handler="Type">
+            <label asp-for="TypeName">Nazwa rodzaju</label>
+            <input asp-for="TypeName" class="form-control mb-2" maxlength="200" required placeholder="np. Wtryskarka" />
+            <button class="btn btn-outline-primary">Dodaj rodzaj</button>
+        </form>
+    </section>
+    <section class="col-lg-6">
+        <h2 class="h4">Nowa definicja właściwości</h2>
+        <form method="post" asp-page-handler="Property">
+            <div class="mb-2"><label asp-for="PropertyCode">Kod</label><input asp-for="PropertyCode" class="form-control" required maxlength="50" placeholder="np. SILA_ZWARCIA" /></div>
+            <div class="mb-2"><label asp-for="PropertyName">Nazwa</label><input asp-for="PropertyName" class="form-control" required maxlength="200" /></div>
+            <div class="mb-2"><label asp-for="Description">Opis</label><textarea asp-for="Description" class="form-control" maxlength="2000"></textarea></div>
+            <div class="mb-2"><label asp-for="DataType">Typ danych</label>
+                <select asp-for="DataType" class="form-select">
+                    @foreach (var type in Enum.GetValues<PropertyDataType>()) { <option value="@((int)type)">@PropertyFields.Label(type)</option> }
+                </select>
+            </div>
+            <div class="mb-2"><label asp-for="Unit">Jednostka (tylko dla liczby)</label><input asp-for="Unit" class="form-control" maxlength="30" placeholder="np. kN" /></div>
+            <div class="mb-2"><label asp-for="Options">Opcje (tylko dla słownika, każda w osobnej linii)</label><textarea asp-for="Options" class="form-control" rows="4" maxlength="20100"></textarea></div>
+            <button class="btn btn-primary">Dodaj definicję</button>
+        </form>
+    </section>
+    <section class="col-lg-6">
+        <h2 class="h4">Właściwości rodzaju stanowiska</h2>
+        <form method="post" asp-page-handler="Rule">
+            <div class="mb-2"><label asp-for="TypeId">Rodzaj stanowiska</label>
+                <select asp-for="TypeId" class="form-select" required>
+                    <option value="">— wybierz —</option>
+                    @foreach (var type in Model.Catalog.Types) { <option value="@type.Id">@type.Name</option> }
+                </select>
+            </div>
+            <div class="mb-2"><label asp-for="PropertyId">Właściwość</label>
+                <select asp-for="PropertyId" class="form-select" required>
+                    <option value="">— wybierz —</option>
+                    @foreach (var property in Model.Catalog.Properties) { <option value="@property.Id">@property.Name (@property.Code)</option> }
+                </select>
+            </div>
+            <div class="form-check mb-3"><input asp-for="IsRequired" class="form-check-input" /><label asp-for="IsRequired" class="form-check-label">Wartość wymagana</label></div>
+            <button class="btn btn-primary">Zapisz przypisanie</button>
+        </form>
+        <p class="form-text">Ponowny zapis tej samej pary zmienia wymagalność. Aby wymagać nowej cechy przy istniejących stanowiskach, najpierw przypisz ją opcjonalnie i uzupełnij wartości.</p>
+        <ul>@foreach (var rule in Model.Catalog.Rules)
+        {
+            <li>@Model.Catalog.Types.Single(x => x.Id == rule.TypeId).Name → @Model.Catalog.Properties.Single(x => x.Id == rule.PropertyId).Name
+                (@(rule.IsRequired ? "wymagana" : "opcjonalna"))</li>
+        }</ul>
+    </section>
+</div>
+<h2 class="h4 mt-4">Definicje właściwości</h2>
+<div class="table-responsive"><table class="table">
+    <thead><tr><th>Kod</th><th>Nazwa</th><th>Typ</th><th>Jednostka</th><th>Opcje</th></tr></thead>
+    <tbody>@foreach (var property in Model.Catalog.Properties)
+    {
+        <tr><td>@property.Code</td><td>@property.Name</td><td>@PropertyFields.Label(property.DataType)</td><td>@property.Unit</td><td>@string.Join(", ", property.Options.Select(x => x.Name))</td></tr>
+    }</tbody>
+</table></div>

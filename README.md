@@ -60,6 +60,45 @@ Zapytanie jest zaufaną konfiguracją administratora. Korzystaj z konta z uprawn
 
 ## Dostępne adresy
 
+### Prototyp stanowisk i elastycznych właściwości
+
+Uruchom projekt profilem `https` lub `http` z Visual Studio (środowisko Development).
+W menu wybierz **Stanowiska** → **Słowniki i właściwości**.
+
+1. Dodaj rodzaj stanowiska (np. Wtryskarka).
+2. Dodaj definicję cechy: kod, nazwę, typ danych, opcjonalny opis i jednostkę dla liczb.
+   Dla typów słownikowych podaj opcje, każdą w osobnej linii.
+   Lokalizację zdefiniuj jako **Słownik** (np. Hala A, Hala B),
+   a centrum produkcyjne jako **Słownik — wiele wyborów** (np. Centrum A, Centrum B).
+3. Przypisz definicję do rodzaju stanowiska, zaznaczając opcjonalnie wymagalność.
+4. Na liście stanowisk wybierz **Dodaj stanowisko**, wybierz rodzaj i uzupełnij formularz.
+5. Link **Właściwości** otwiera edycję wartości konkretnego stanowiska.
+
+Formularz pokazuje automatycznie cechy wymagane oraz zapisane cechy opcjonalne.
+Pozostałe wybierasz z listy **Dostępne właściwości opcjonalne** przyciskiem **Dodaj właściwość**.
+Dodana cecha musi mieć wartość; możesz też wycofać ją przyciskiem **Usuń właściwość**.
+Te przyciski zmieniają wyłącznie formularz, zachowując pozostałe wpisane dane.
+Dopiero **Utwórz stanowisko** albo **Zapisz wartości** zatwierdza zmiany.
+Wymaganych cech nie można usuwać.
+
+Dostępne typy to tekst, liczba dziesiętna, Tak/Nie, data, słownik i słownik z wielokrotnym wyborem.
+Lokalizacja i centrum produkcyjne są właściwościami; ich wymagalność ustalasz przy przypisaniu do rodzaju.
+Nowe opcjonalne cechy można przypisać do rodzaju już po utworzeniu stanowisk.
+Wymagalność można włączyć po uzupełnieniu wartości we wszystkich stanowiskach tego rodzaju.
+
+**Dane prototypu są w pamięci i znikają po restarcie.** Wszystkie operacje używają
+operatora demonstracyjnego ID 1. Moduł jest włączony przez `WorkstationPrototype:Enabled`
+w konfiguracji Development; nie jest podłączony do SQL ani systemu logowania.
+Dokładne zasady opisuje [model właściwości](docs/workstation-properties.md).
+
+Test przepływu HTTP po kompilacji Release (PowerShell 7):
+
+~~~powershell
+pwsh -NoProfile -File scripts/Test-WorkstationPrototype.ps1
+~~~
+
+### Moduł maszyn (SQL)
+
 - / - panel
 - /Machines - lista i wyszukiwanie
 - /api/v1/machines?search=ABC - JSON

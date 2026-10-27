@@ -1,0 +1,84 @@
+@model MES.Web.Pages.Workstations.PropertyFields
+@using MES.Domain.Properties
+@foreach (var rule in Model.Catalog.Rules.Where(x => x.TypeId == Model.TypeId && (x.IsRequired || Model.Values.ContainsKey(x.PropertyId))))
+{
+    var property = Model.Catalog.Properties.Single(x => x.Id == rule.PropertyId);
+    var value = Model.Values.GetValueOrDefault(property.Id) ?? "";
+    var field = $"Values[{property.Id}]";
+    var fieldId = $"property-{property.Id}";
+    <div class="mb-3">
+        <label for="@fieldId" class="form-label">
+            @property.Name @if (property.Unit is not null) { <span>(@property.Unit)</span> }
+            @if (rule.IsRequired) { <span class="text-danger">— wymagane</span> }
+            else { <span class="text-muted">— opcjonalne</span> }
+        </label>
+        @if (!rule.IsRequired)
+        {
+            <button type="submit" asp-page-handler="RemoveProperty" name="propertyId" value="@property.Id"
+                    formnovalidate class="btn btn-sm btn-outline-danger ms-2">Usuń właściwość</button>
+        }
+        @if (property.DataType == PropertyDataType.MultiOption)
+        {
+            var selected = value.Split(',').ToHashSet();
+            <input type="hidden" name="@field" value="" />
+            <fieldset id="@fieldId">
+                <legend class="visually-hidden">@property.Name</legend>
+                @foreach (var option in property.Options)
+                {
+                    var optionFieldId = $"{fieldId}-{option.Id}";
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="@optionFieldId"
+                               name="SelectedOptions" value="@(property.Id):@(option.Id)" checked="@selected.Contains(option.Id.ToString())" />
+                        <label class="form-check-label" for="@optionFieldId">@option.Name</label>
+                    </div>
+                }
+            </fieldset>
+        }
+        else if (property.DataType == PropertyDataType.Option)
+        {
+            <select id="@fieldId" name="@field" class="form-select" required>
+                <option value="">— wybierz —</option>
+                @foreach (var option in property.Options)
+                {
+                    <option value="@option.Id" selected="@(value == option.Id.ToString())">@option.Name</option>
+                }
+            </select>
+        }
+        else if (property.DataType == PropertyDataType.Boolean)
+        {
+            <select id="@fieldId" name="@field" class="form-select" required>
+                <option value="">— wybierz —</option>
+                <option value="true" selected="@(value == "true")">Tak</option>
+                <option value="false" selected="@(value == "false")">Nie</option>
+            </select>
+        }
+        else
+        {
+            <input id="@fieldId" name="@field" value="@value" class="form-control"
+                   type="@(property.DataType == PropertyDataType.Date ? "date" : "text")"
+                   inputmode="@(property.DataType == PropertyDataType.Number ? "decimal" : "text")"
+                   maxlength="2000" required />
+        }
+        @if (property.Description is not null) { <div class="form-text">@property.Description</div> }
+    </div>
+}
+@{
+    var available = Model.Catalog.Rules.Where(x => x.TypeId == Model.TypeId && !x.IsRequired
+        && !Model.Values.ContainsKey(x.PropertyId)).ToArray();
+}
+@if (available.Length > 0)
+{
+    <div class="border rounded p-3 mb-3">
+        <label for="optional-property" class="form-label">Dostępne właściwości opcjonalne</label>
+        <select id="optional-property" name="AddPropertyId" class="form-select mb-2">
+            <option value="">— wybierz właściwość —</option>
+            @foreach (var rule in available)
+            {
+                var definition = Model.Catalog.Properties.Single(x => x.Id == rule.PropertyId);
+                <option value="@definition.Id">@definition.Name</option>
+            }
+        </select>
+        <button type="submit" asp-page-handler="AddProperty" formnovalidate class="btn btn-outline-primary">Dodaj właściwość</button>
+    </div>
+}
+<p class="form-text">Dodanie i usunięcie zmienia formularz. Zmiany zostaną zapisane po zatwierdzeniu całego formularza.</p>

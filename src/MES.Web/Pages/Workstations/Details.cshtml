@@ -1,0 +1,25 @@
+@page "{id:int}"
+@model MES.Web.Pages.Workstations.DetailsModel
+@{ ViewData["Title"] = Model.Workstation.Name; }
+<h1>@Model.Workstation.Code — @Model.Workstation.Name</h1>
+<partial name="_PrototypeNotice" />
+<p><strong>Rodzaj:</strong> @Model.Workstation.TypeName</p>
+<p>@Model.Workstation.Description</p>
+@if (Model.Notice is not null) { <div class="alert alert-success" role="status">@Model.Notice</div> }
+<h2 class="h4">Wartości właściwości</h2>
+@if (!Model.Catalog.Rules.Any(x => x.TypeId == Model.Workstation.TypeId))
+{
+    <p><a asp-page="Setup">Przypisz właściwości do rodzaju stanowiska</a>, aby móc uzupełnić wartości.</p>
+}
+else
+{
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+        <partial name="_PropertyFields" model="@(new PropertyFields(Model.Catalog, Model.Workstation.TypeId, Model.Values))" />
+        <p class="text-muted">Uzupełnij widoczne właściwości. Opcjonalną cechę możesz usunąć przyciskiem „Usuń właściwość”.</p>
+        <button class="btn btn-primary">Zapisz wartości</button>
+    </form>
+}
+<p class="text-muted mt-4">Utworzono: @Model.Workstation.CreatedAt.ToString("u"), operator @Model.Workstation.CreatedByOperatorId.
+    @if (Model.Workstation.ModifiedAt is not null) { <span>Zmodyfikowano: @Model.Workstation.ModifiedAt.Value.ToString("u"), operator @Model.Workstation.ModifiedByOperatorId.</span> }
+</p>
